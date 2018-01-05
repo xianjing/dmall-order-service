@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  dmall-order-service:
+    image: '${DMALL_DOCKER_REGISTRY}/dmall/order-service:${BUILD_NUMBER}'
+    environment:
+      ACTIVE_PROFILE: dev
+    mem_reservation: 524288000
+    ports:
+      - "8084:8084"
+      - "9841:12841"
+    external_links:
+      - dmall-config-server/dmall-config-server:dmall-config-server
+      - dmall-registry-server/dmall-registry-server:dmall-registry-server
+    

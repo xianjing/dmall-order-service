@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:h2:mem:testData;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  h2:
+    console:
+      enabled: true
+
+server:
+  port: 8084
+management:
+  port: 12841
+  context-path: '/78d504ff-82e8-4a87-82e8-724d72d1171b'
+
+logging.level.project.user.UserClient: DEBUG
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+    registry-fetch-interval-seconds: 1
+  instance:
+    lease-renewal-interval-in-seconds: 2 #契约更新间隔
+    lease-expiration-duration-in-seconds: 4 #契约过期时间
+    metadata-map:
+      cluster: dmall
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      health:
+        path: ${management.context-path}/health
+    status-page-url-path: ${management.context-path}/info
+    health-check-url-path: ${management.context-path}/health
+    prefer-ip-address: true
+
+shipping-service:
+  ribbon:
+    MaxAutoRetries: 1
+    MaxAutoRetriesNextServer: 1 #(4)
+    OkToRetryOnAllOperations: true
+    ConnectTimeout: 3000
+    ReadTimeout: 3000
+    EnablePrimeConnections: true
+
+ribbon:
+  eureka:
+    enabled: true
+  ServerListRefreshInterval: 1000
+  NFLoadBalancerPingInterval: 10 #
+
+feign:
+  hystrix:
+    enabled: true
+
+
+hystrix: #具体配置请看:https://github.com/Netflix/Hystrix/wiki/Configuration
+  command: #service1 的所有接口方法的统一配置: personal.leo.tutorial.netflix.service0.client.config.Service1ClientConfig
+    default: # 全局配置
+      execution.isolation.thread.timeoutInMilliseconds: 3000
+    Service1Client#tips(int): #方法级别控制.  HystrixCommandKey 的 pattern,请看 feign.Feign.configKey(Class,Method)
+      execution.isolation.thread.timeoutInMilliseconds: 4000
+      #类级别控制请看 personal.leo.tutorial.netflix.service0.client.config.Service1ClientConfig
+
+# hystrix:
+#   command:
+#     RemoteMessageClientCommand:
+#       execution:
+#         isolation:
+#           thread:
+#             timeoutInMilliseconds: 5000
+#     RemoteMessageAnnotationClient:
+#       execution:
+#         isolation:
+#           thread:
+#             timeoutInMilliseconds: 5000
